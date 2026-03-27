@@ -1,343 +1,425 @@
-🏋️ Gym Training Management App
-📌 Visión del Proyecto
+# 🏋️ Gym App — Arquitectura Raíz del Proyecto
 
-Aplicación web progresiva (PWA) para la gestión integral de entrenamientos en gimnasio.
+Aplicación web + móvil (PWA) para gestión de rutinas de gimnasio.
 
-El sistema permite:
+Una sola aplicación que funciona:
 
-Gestión de alumnos
+- Como web en desktop (profesores / administrador)
+- Como app instalable en celular (alumnos)
 
-Gestión de profesores
+Stack principal:
 
-Creación de rutinas y planificaciones
+Frontend:
+- React
+- TypeScript
+- Vite
+- PWA
+- Tailwind
+- React Query
+- Zustand
 
-Registro de entrenamientos reales
+Backend:
+- Supabase (PostgreSQL + Auth + RLS)
 
-Historial completo por alumno
+---
 
-Progresión de carga
+# 🎯 OBJETIVO DEL SISTEMA
 
-Temporizador de descanso integrado
+Permitir:
 
-Visualización de progreso y métricas
+Administrador:
+- Acceso total a todos los entornos
+- Ver y gestionar profesores
+- Ver y gestionar alumnos
+- Ver todas las planificaciones
+- Ver todos los entrenamientos
+- Acceso completo sin restricciones RLS
 
-El objetivo inicial es uso interno en un gimnasio con dos profesores.
+Profesor:
+- Crear ejercicios
+- Crear rutinas (plantillas)
+- Asignar planificaciones a alumnos
+- Ver progreso
 
-🎯 Objetivo del MVP
+Alumno:
+- Ver rutina activa
+- Registrar entrenamientos
+- Registrar pesos
+- Ver historial
+- Ver progreso
+- Usar cronómetro
+- Usar temporizador de descanso sugerido
 
-Construir una aplicación:
+---
 
-Económica (infraestructura gratuita)
+# 🧩 MODELO FUNCIONAL
 
-Accesible desde computadora y celular
+## 👤 Usuario (base del sistema)
 
-Instalable como app en el celular (PWA)
+- id
+- nombre
+- email
+- rol (administrador | profesor | alumno)
+- fecha_creacion
 
-Fácil de usar durante el entrenamiento
+---
 
-Escalable a futuro (posible SaaS)
+## 👑 Administrador
 
-🧱 Modelo Conceptual del Sistema
-👤 Usuario
+⚠️ Este rol es exclusivo del desarrollador.
 
-Base del sistema.
+Características:
 
-id
+- Acceso total al sistema
+- Puede ver todos los profesores
+- Puede ver todos los alumnos
+- Puede ver todas las rutinas
+- Puede ver todas las planificaciones
+- Puede ver todos los entrenamientos
+- Puede acceder tanto a vistas de profesor como de alumno
+- Puede saltar restricciones normales de RLS
 
-nombre
+Regla importante:
+Solo debe existir uno (o muy pocos) administradores.
 
-email
+---
 
-rol (profesor | alumno)
+## 🧍 Alumno
 
-fecha_creación
-
-👨‍🏫 Profesor
-
-Puede ver todos los alumnos
-
-Puede crear ejercicios
-
-Puede crear rutinas
-
-Puede asignar planificaciones
-
-Puede ver progreso de alumnos
-
-Actualmente hay 2 profesores y ambos tienen acceso total a los alumnos.
-
-🧍 Alumno
-
-Datos adicionales:
-
-fecha_nacimiento
-
-años_entrenando
-
-días_entrena_por_semana
-
-horario_habitual
-
-observaciones
+- user_id
+- fecha_nacimiento
+- años_entrenando
+- dias_entrena_por_semana
+- horario_habitual
+- observaciones
 
 Puede:
+- Ver rutinas actuales
+- Ver planificaciones anteriores
+- Registrar entrenamientos
+- Registrar pesos
+- Ver progreso
+- Usar cronómetro
 
-Ver rutina activa
+---
 
-Ver planificaciones anteriores
+## 👨‍🏫 Profesor
 
-Registrar entrenamientos
+- user_id
+- activo
 
-Registrar pesos utilizados
+Puede:
+- Ver todos los alumnos
+- Crear ejercicios
+- Crear rutinas
+- Asignar planificaciones
+- Ver progreso de alumnos
 
-Ver historial por ejercicio
+(No hay relación exclusiva profesor–alumno.)
 
-Ver gráficos de progreso
+---
 
-Usar temporizador
+## 🏋️ Ejercicio
 
-🏋️ Ejercicio
+- id
+- nombre
+- descripcion
+- url_youtube
+- creado_por
 
-Entidad reutilizable.
+---
 
-nombre
+## 📋 Rutina (Plantilla)
 
-descripción
+- id
+- nombre
+- duracion_semanas
+- creada_por
+- fecha_creacion
 
-url_youtube
+---
 
-creado_por
+## 🧱 RutinaEjercicio
 
-Los videos se utilizan exclusivamente desde YouTube (no se almacenan videos).
+Define la estructura interna de la rutina.
 
-📋 Rutina (Plantilla)
+- rutina_id
+- ejercicio_id
+- semana
+- orden
+- series
+- repeticiones
+- porcentaje_carga (opcional)
+- comentario_intensidad (opcional)
+- tiempo_descanso_segundos (opcional)
 
-Define estructura general.
+Permite que el profesor defina descanso sugerido.
 
-nombre
+---
 
-duración_semanas
+## 📦 Planificación (Instancia asignada)
 
-creada_por
+- rutina_id
+- alumno_id
+- fecha_inicio
+- fecha_fin
+- estado (activa | finalizada | cancelada)
 
-fecha_creación
+Permite historial limpio por alumno.
 
-No pertenece a un alumno hasta que se asigna.
+---
 
-🧱 RutinaEjercicio
+## 🏋️ Entrenamiento (registro diario)
 
-Define ejercicios dentro de una rutina.
+- planificacion_id
+- alumno_id
+- fecha
+- completado
+- observaciones
 
-rutina
+---
 
-ejercicio
+## 📊 RegistroEjercicio
 
-semana
+Corazón del historial.
 
-orden
+- entrenamiento_id
+- rutina_ejercicio_id
+- peso_usado
+- repeticiones_realizadas
+- notas
 
-series
+---
 
-repeticiones
+# ⏱ TEMPORIZADOR
 
-porcentaje_carga (opcional)
+Se implementa en dos niveles:
 
-comentario_intensidad (opcional)
+1️⃣ Descanso sugerido  
+Basado en:
+RutinaEjercicio.tiempo_descanso_segundos
 
-tiempo_descanso_segundos (opcional)
+2️⃣ Cronómetro libre  
+Funcionalidad de interfaz (no requiere entidad nueva).
 
-Permite periodización y progresión.
+---
 
-📦 Planificación (Instancia)
+# 📈 PROGRESO
 
-Cuando una rutina se asigna a un alumno se crea una planificación.
+No requiere tablas nuevas.
 
-rutina
+Se calcula dinámicamente:
 
-alumno
+- % ejercicios completados
+- % entrenamientos realizados
+- Progreso por planificación
+- Evolución de peso por ejercicio
 
-fecha_inicio
+---
 
-fecha_fin
+# 🧠 STACK DEFINITIVO
 
-estado (activa | finalizada | cancelada)
+## Frontend
 
-Esto permite:
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- React Router
+- React Query
+- Zustand
+- Recharts
+- DnD Kit
+- Zod
+- date-fns
+- PWA (vite-plugin-pwa)
 
-Historial completo
+## Backend
 
-Comparación entre planificaciones
+- Supabase
+  - PostgreSQL
+  - Auth
+  - Row Level Security
+  - Realtime
 
-Evitar modificar el pasado
+## Hosting
 
-🏋️ Entrenamiento
+- Vercel (frontend)
+- Supabase (backend)
 
-Registro real diario.
+Costo: prácticamente cero en fase inicial.
 
-planificación
+---
 
-alumno
+# 🏗 ESTRUCTURA POR CAPAS
 
-fecha
+⚠️ Regla importante:
+Frontend y Backend se desarrollan en fases separadas.
+Nunca mezclar prompts de ambas capas.
 
-completado
+---
 
-observaciones
+# 🔵 BACKEND — FASES
 
-📊 RegistroEjercicio
+## Backend Fase 1 — Base del Sistema
 
-Registro real de carga.
+- Tabla usuarios
+- Tabla alumnos
+- Tabla profesores
+- Definición de roles (administrador | profesor | alumno)
+- Políticas RLS:
+  - Alumno → solo sus datos
+  - Profesor → datos académicos generales
+  - Administrador → acceso total
 
-entrenamiento
+---
 
-rutina_ejercicio
+## Backend Fase 2 — Núcleo de Rutinas
 
-peso_usado
+- Tabla ejercicios
+- Tabla rutinas
+- Tabla rutina_ejercicio
+- CRUD completo
+- Seguridad por rol profesor
+- Override total para administrador
 
-repeticiones_realizadas
+---
 
-notas
+## Backend Fase 3 — Planificaciones
 
-Permite:
+- Tabla planificaciones
+- Asignación rutina → alumno
+- Estados
+- Consultas optimizadas
 
-Historial por ejercicio
+---
 
-Progresión de carga
+## Backend Fase 4 — Entrenamientos
 
-Gráficos comparativos
+- Tabla entrenamientos
+- Tabla registro_ejercicio
+- Relaciones completas
+- Validaciones
 
-⏱ Funcionalidad de Temporizador
+---
 
-La aplicación incluye:
+## Backend Fase 5 — Optimización
 
-1️⃣ Descanso automático
+- Índices
+- Vistas SQL para métricas
+- Performance
+- Ajustes RLS
 
-Si el profesor define tiempo_descanso:
+---
 
-El alumno puede iniciar un contador automático al finalizar una serie.
+# 🟢 FRONTEND — FASES
 
-2️⃣ Cronómetro libre
+## Frontend Fase 1 — Base
 
-Iniciar
+- Configuración Vite + PWA
+- Router
+- Layout base
+- Auth
+- Protección por rol
+- Perfil alumno
+- Redirección dinámica según rol
 
-Pausar
+---
 
-Reiniciar
+## Frontend Fase 2 — Profesor
 
-No depende de una entidad adicional.
+- CRUD ejercicios
+- Builder de rutinas (drag & drop)
+- Asignar planificación
 
-📈 Métricas y Progreso
+---
 
-Se calculan dinámicamente:
+## Frontend Fase 3 — Alumno
 
-% de ejercicios completados
+- Vista rutina activa
+- Registro entrenamiento diario
+- Carga de peso
+- Marcar ejercicios completados
 
-% de entrenamientos realizados
+---
 
-Progreso por planificación
+## Frontend Fase 4 — Progreso
 
-Historial por ejercicio
+- Gráficos evolución
+- Historial por ejercicio
+- % completado
+- Vista historial planificaciones
 
-Evolución de carga en gráficos
+---
 
-🖥️ Acceso
+## Frontend Fase 5 — Administrador
 
-El sistema es una PWA (Progressive Web App):
+- Panel de control global
+- Vista completa del sistema
+- Acceso cruzado a entornos
+- Monitor de actividad
 
-Desde computadora → funciona como web
+---
 
-Desde celular → se puede instalar como app
+## Frontend Fase 6 — Experiencia
 
-No requiere app nativa
+- Cronómetro libre
+- Descanso automático
+- Interacción tipo “rutina completada”
+- Mejoras UX
 
-🧰 Tecnologías Definidas
-Frontend
+---
 
-React
+# 🧱 REGLAS ARQUITECTÓNICAS
 
-TypeScript
+- No crear entidades innecesarias
+- El progreso se calcula, no se guarda
+- No duplicar datos
+- Rutina = plantilla
+- Planificación = instancia asignada
+- Entrenamiento = registro diario
+- RegistroEjercicio = detalle real del esfuerzo
+- Administrador tiene acceso total pero no altera el modelo
 
-Vite
+---
 
-PWA (Service Worker + Manifest)
+# 📱 MODELO DE USO
 
-Backend / Base de Datos
+Administrador:
+- Uso principalmente desktop
+- Control total del sistema
 
-Supabase
+Profesor:
+- Principalmente desktop
+- Administra contenido
 
-PostgreSQL
+Alumno:
+- Principalmente celular
+- Registra entrenamientos
+- Instala PWA
 
-Supabase Auth
+Una sola aplicación cubre todo.
 
-Supabase Realtime
+---
 
-Hosting
+# 🚫 NO HACER
 
-Vercel (Frontend)
+- No crear backend propio inicialmente
+- No crear app nativa
+- No guardar métricas derivadas
+- No mezclar fases backend/frontend en prompts
+- No crear múltiples administradores sin necesidad
 
-Supabase (Backend)
+---
 
-Infraestructura en free tier.
+# 🎯 OBJETIVO FINAL
 
-🧠 Reglas Arquitectónicas Clave
+Sistema:
+- Escalable
+- Económico
+- Claro
+- Mantenible
+- Profesional
 
-Nunca modificar planificaciones pasadas.
-
-Separar siempre:
-
-Rutina (plantilla)
-
-Planificación (instancia)
-
-Entrenamiento (registro real)
-
-No almacenar videos.
-
-No mezclar lógica de progreso con estructura de rutina.
-
-Todo progreso se calcula desde registros reales.
-
-🚀 Fases de Desarrollo
-Fase 1
-
-Usuarios, roles, perfil alumno.
-
-Fase 2
-
-CRUD ejercicios y rutinas.
-
-Fase 3
-
-Asignación de planificaciones.
-
-Fase 4
-
-Registro de entrenamientos y cargas.
-
-Fase 5
-
-Métricas y gráficos.
-
-Fase 6
-
-Temporizador integrado.
-
-🔮 Escalabilidad Futura
-
-Preparado para:
-
-Multi-gimnasio
-
-Sistema de suscripción
-
-Panel administrador avanzado
-
-Métricas avanzadas
-
-Exportación de datos
-
-🧩 Estado Actual del Proyecto
-
-MVP interno para validación en gimnasio actual.
-
-No es SaaS por el momento.
+Este README define la estructura raíz del proyecto.
+Cualquier nueva decisión debe respetar este modelo.
