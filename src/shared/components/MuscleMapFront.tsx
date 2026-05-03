@@ -36,7 +36,7 @@ const MuscleZone: React.FC<ZoneProps> = ({
   children,
   labelX,
   labelY,
-  fill = "#738196",
+  fill = "#b85c4d",
   selectedFill = "#f97316",
 }) => {
   const isInteractive = Boolean(onSelect);
@@ -91,8 +91,9 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
   >
     <defs>
       <linearGradient id="frontBase" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stopColor="#e7ebf2" />
-        <stop offset="100%" stopColor="#cbd3df" />
+        <stop offset="0%" stopColor="#f0dfd2" />
+        <stop offset="48%" stopColor="#dcc0ad" />
+        <stop offset="100%" stopColor="#b99482" />
       </linearGradient>
       <filter id="muscleGlow" x="-30%" y="-30%" width="160%" height="160%">
         <feDropShadow dx="0" dy="6" stdDeviation="5" floodColor="#f97316" floodOpacity="0.25" />
@@ -105,15 +106,20 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
 
           .body-base {
             fill: url(#frontBase);
-            stroke: #8794a5;
+            stroke: #8f6d60;
             stroke-width: 1.6;
           }
 
           .body-detail {
             fill: none;
-            stroke: rgba(71, 85, 105, 0.45);
+            stroke: rgba(95, 55, 48, 0.45);
             stroke-width: 1.2;
             stroke-linecap: round;
+          }
+
+          .body-shadow {
+            fill: rgba(92, 48, 39, 0.18);
+            pointer-events: none;
           }
 
           .muscle-zone {
@@ -126,9 +132,9 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
 
           .zone-shape {
             fill: var(--zone-fill);
-            fill-opacity: 0.72;
-            stroke: rgba(226, 232, 240, 0.82);
-            stroke-width: 1.5;
+            fill-opacity: 0.9;
+            stroke: rgba(255, 224, 204, 0.76);
+            stroke-width: 1.15;
             transition:
               fill 140ms ease,
               fill-opacity 140ms ease,
@@ -141,9 +147,18 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
 
           .muscle-line {
             fill: none;
-            stroke: rgba(255, 255, 255, 0.45);
-            stroke-width: 1;
+            stroke: rgba(255, 236, 219, 0.62);
+            stroke-width: 0.95;
             stroke-linecap: round;
+            pointer-events: none;
+          }
+
+          .deep-muscle-line {
+            fill: none;
+            stroke: rgba(89, 37, 31, 0.32);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 0.85;
             pointer-events: none;
           }
 
@@ -155,7 +170,7 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
             letter-spacing: 0;
             paint-order: stroke;
             pointer-events: none;
-            stroke: rgba(15, 23, 42, 0.58);
+            stroke: rgba(77, 32, 27, 0.78);
             stroke-linejoin: round;
             stroke-width: 2.5px;
             text-anchor: middle;
@@ -164,7 +179,7 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
 
           .muscle-zone.is-interactive:hover .zone-shape,
           .muscle-zone.is-interactive:focus-visible .zone-shape {
-            fill: #fb923c;
+            fill: #df6b4f;
             fill-opacity: 0.96;
             filter: url(#muscleGlow);
             stroke: #fed7aa;
@@ -201,6 +216,13 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
     </g>
 
     <g pointerEvents="none">
+      <path className="body-shadow" d="M116 82 C108 106 111 146 121 169 C115 159 104 133 105 104 C106 93 110 86 116 82 Z" />
+      <path className="body-shadow" d="M164 82 C172 106 169 146 159 169 C165 159 176 133 175 104 C174 93 170 86 164 82 Z" />
+      <path className="body-shadow" d="M116 210 C112 235 112 273 119 302 C111 286 106 240 111 218 C112 214 114 211 116 210 Z" />
+      <path className="body-shadow" d="M164 210 C168 235 168 273 161 302 C169 286 174 240 169 218 C168 214 166 211 164 210 Z" />
+    </g>
+
+    <g pointerEvents="none">
       <path className="body-detail" d="M140 62 C138 86 138 105 140 126" />
       <path className="body-detail" d="M118 172 C129 179 151 179 162 172" />
       <path className="body-detail" d="M124 210 C128 236 128 270 121 304" />
@@ -214,10 +236,14 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={140}
       labelY={78}
-      fill="#64748b"
+      fill="#b85d4d"
     >
       <path className="zone-shape" d="M102 78 C94 81 88 90 87 101 C98 106 113 99 121 86 C116 78 109 75 102 78 Z" />
       <path className="zone-shape" d="M178 78 C186 81 192 90 193 101 C182 106 167 99 159 86 C164 78 171 75 178 78 Z" />
+      <path className="muscle-line" d="M100 84 C106 87 113 88 119 86" />
+      <path className="muscle-line" d="M180 84 C174 87 167 88 161 86" />
+      <path className="deep-muscle-line" d="M94 94 C101 99 110 98 117 91" />
+      <path className="deep-muscle-line" d="M186 94 C179 99 170 98 163 91" />
     </MuscleZone>
 
     <MuscleZone
@@ -227,12 +253,16 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={140}
       labelY={105}
-      fill="#60738d"
+      fill="#bf5b4d"
     >
       <path className="zone-shape" d="M113 88 C124 80 137 82 139 96 L139 122 C126 122 113 116 108 105 C105 97 107 91 113 88 Z" />
       <path className="zone-shape" d="M167 88 C156 80 143 82 141 96 L141 122 C154 122 167 116 172 105 C175 97 173 91 167 88 Z" />
       <path className="muscle-line" d="M116 100 C123 96 131 96 138 101" />
       <path className="muscle-line" d="M164 100 C157 96 149 96 142 101" />
+      <path className="deep-muscle-line" d="M111 109 C119 114 129 117 138 118" />
+      <path className="deep-muscle-line" d="M169 109 C161 114 151 117 142 118" />
+      <path className="deep-muscle-line" d="M130 87 C134 96 137 106 138 118" />
+      <path className="deep-muscle-line" d="M150 87 C146 96 143 106 142 118" />
     </MuscleZone>
 
     <MuscleZone
@@ -242,10 +272,14 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={88}
       labelY={129}
-      fill="#7c8da3"
+      fill="#c66755"
     >
       <path className="zone-shape" d="M82 108 C89 96 99 98 103 111 C105 127 101 142 92 153 C83 148 78 132 78 118 C78 114 79 111 82 108 Z" />
       <path className="zone-shape" d="M198 108 C191 96 181 98 177 111 C175 127 179 142 188 153 C197 148 202 132 202 118 C202 114 201 111 198 108 Z" />
+      <path className="muscle-line" d="M86 111 C93 120 94 134 90 148" />
+      <path className="muscle-line" d="M194 111 C187 120 186 134 190 148" />
+      <path className="deep-muscle-line" d="M97 106 C99 121 96 136 91 151" />
+      <path className="deep-muscle-line" d="M183 106 C181 121 184 136 189 151" />
     </MuscleZone>
 
     <MuscleZone
@@ -255,10 +289,12 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={192}
       labelY={151}
-      fill="#8a97aa"
+      fill="#ad5a4b"
     >
       <path className="zone-shape" d="M69 121 C72 106 79 99 86 103 C83 120 80 138 75 153 C67 149 64 135 69 121 Z" />
       <path className="zone-shape" d="M211 121 C208 106 201 99 194 103 C197 120 200 138 205 153 C213 149 216 135 211 121 Z" />
+      <path className="muscle-line" d="M75 110 C73 124 72 139 75 152" />
+      <path className="muscle-line" d="M205 110 C207 124 208 139 205 152" />
     </MuscleZone>
 
     <MuscleZone
@@ -268,13 +304,17 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={140}
       labelY={148}
-      fill="#6f8198"
+      fill="#b95145"
     >
       <path className="zone-shape" d="M120 122 C130 127 150 127 160 122 C164 138 164 157 158 170 C150 176 130 176 122 170 C116 157 116 138 120 122 Z" />
+      <path className="zone-shape" d="M111 126 C117 132 119 146 118 165 C112 160 108 149 107 138 C107 132 109 128 111 126 Z" />
+      <path className="zone-shape" d="M169 126 C163 132 161 146 162 165 C168 160 172 149 173 138 C173 132 171 128 169 126 Z" />
       <path className="muscle-line" d="M140 128 L140 169" />
       <path className="muscle-line" d="M124 138 C132 141 148 141 156 138" />
       <path className="muscle-line" d="M123 152 C132 155 148 155 157 152" />
       <path className="muscle-line" d="M126 166 C134 168 146 168 154 166" />
+      <path className="deep-muscle-line" d="M115 132 C113 144 114 155 119 165" />
+      <path className="deep-muscle-line" d="M165 132 C167 144 166 155 161 165" />
     </MuscleZone>
 
     <MuscleZone
@@ -284,12 +324,16 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={140}
       labelY={229}
-      fill="#70849b"
+      fill="#bd604f"
     >
       <path className="zone-shape" d="M115 205 C124 196 137 199 140 212 C139 237 134 261 127 273 C116 269 110 246 108 223 C108 215 110 209 115 205 Z" />
       <path className="zone-shape" d="M165 205 C156 196 143 199 140 212 C141 237 146 261 153 273 C164 269 170 246 172 223 C172 215 170 209 165 205 Z" />
       <path className="muscle-line" d="M126 209 C125 228 123 247 119 265" />
       <path className="muscle-line" d="M154 209 C155 228 157 247 161 265" />
+      <path className="deep-muscle-line" d="M116 217 C125 224 132 239 132 259" />
+      <path className="deep-muscle-line" d="M164 217 C155 224 148 239 148 259" />
+      <path className="deep-muscle-line" d="M137 215 C133 234 130 253 127 270" />
+      <path className="deep-muscle-line" d="M143 215 C147 234 150 253 153 270" />
     </MuscleZone>
 
     <MuscleZone
@@ -299,12 +343,14 @@ const MuscleMapFront: React.FC<MuscleMapFrontProps> = ({
       onSelect={onSelect}
       labelX={140}
       labelY={287}
-      fill="#8190a3"
+      fill="#a95d50"
     >
       <path className="zone-shape" d="M113 260 C123 263 128 277 126 299 C121 306 113 306 109 296 C108 282 110 269 113 260 Z" />
       <path className="zone-shape" d="M167 260 C157 263 152 277 154 299 C159 306 167 306 171 296 C172 282 170 269 167 260 Z" />
       <path className="muscle-line" d="M118 266 C116 278 115 288 117 299" />
       <path className="muscle-line" d="M162 266 C164 278 165 288 163 299" />
+      <path className="deep-muscle-line" d="M123 270 C126 282 124 294 119 303" />
+      <path className="deep-muscle-line" d="M157 270 C154 282 156 294 161 303" />
     </MuscleZone>
 
     <MuscleZone
