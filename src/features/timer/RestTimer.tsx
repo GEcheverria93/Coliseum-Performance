@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 export function RestTimer({ seconds = 60 }: { seconds?: number }) {
   const [remaining, setRemaining] = useState(seconds);
   const [isRunning, setIsRunning] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setRemaining(seconds);

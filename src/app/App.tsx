@@ -1,8 +1,9 @@
+import React, { useEffect } from 'react';
+
 import { NavLink, Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useUsersStore } from '../features/users';
 import { useStudentsStore } from '../features/students';
-import { useExercisesStore } from '../features/exercises';
+import { ExercisesPage, useExercisesStore } from '../features/exercises';
 import { useRoutinesStore } from '../features/routines';
 import { usePlansStore } from '../features/plans';
 import { useWorkoutsStore } from '../features/workouts';
@@ -313,60 +314,8 @@ function StudentsPage() {
   );
 }
 
-import { useEffect } from 'react';
+// (ya importado arriba)
 import { supabase } from '../shared/lib/supabase';
-
-function ExercisesPage() {
-  const exercises = useExercisesStore((s) => s.exercises);
-  const setExercises = useExercisesStore((s) => s.setExercises);
-
-  useEffect(() => {
-    async function fetchExercises() {
-      const { data, error } = await supabase
-        .from('ejercicios')
-        .select('*');
-      if (!error && data) {
-        setExercises(
-          data.map((e) => ({
-            id: e.id,
-            nombre: e.nombre,
-            descripcion: e.descripcion,
-            // urlYoutube es opcional, solo si existe el campo
-            urlYoutube: e.url_youtube || e.urlYoutube || null,
-            creadoPor: e.creado_por || e.creadoPor || '',
-            fechaCreacion: e.fecha_creacion || e.fechaCreacion || '',
-          }))
-        );
-      }
-    }
-    fetchExercises();
-  }, [setExercises]);
-
-  return (
-    <>
-      <div className="app-header">
-        <div>
-          <div className="app-title">Ejercicios</div>
-          <div className="app-subtitle">
-            Catálogo reutilizable de ejercicios del gimnasio.
-          </div>
-        </div>
-      </div>
-
-      <div className="card-grid">
-        {exercises.map((exercise) => (
-          <div className="card" key={exercise.id}>
-            <div className="card-title">{exercise.nombre}</div>
-            <div className="card-meta">{exercise.descripcion}</div>
-          </div>
-        ))}
-        {exercises.length === 0 && (
-          <p className="muted">Todavía no hay ejercicios definidos.</p>
-        )}
-      </div>
-    </>
-  );
-}
 
 function RoutinesPage() {
   const routines = useRoutinesStore((s) => s.routines);
@@ -999,62 +948,13 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<RootRoute />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/alumnos"
-            element={(
-              <RequireAuth allowedRoles={['administrador', 'profesor']}>
-                <StudentsPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/ejercicios"
-            element={(
-              <RequireAuth allowedRoles={['administrador', 'profesor']}>
-                <ExercisesPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/rutinas"
-            element={(
-              <RequireAuth allowedRoles={['administrador', 'profesor']}>
-                <RoutinesPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/planificaciones"
-            element={(
-              <RequireAuth allowedRoles={['administrador', 'profesor']}>
-                <PlansPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/entrenamientos"
-            element={(
-              <RequireAuth>
-                <WorkoutsPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/progreso"
-            element={(
-              <RequireAuth>
-                <ProgressPage />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/admin"
-            element={(
-              <RequireAuth allowedRoles={['administrador']}>
-                <AdminPage />
-              </RequireAuth>
-            )}
-          />
+          <Route path="/alumnos" element={<RequireAuth allowedRoles={['administrador', 'profesor']}><StudentsPage /></RequireAuth>} />
+          <Route path="/ejercicios" element={<ExercisesPage />} />
+          <Route path="/rutinas" element={<RequireAuth allowedRoles={['administrador', 'profesor']}><RoutinesPage /></RequireAuth>} />
+          <Route path="/planificaciones" element={<RequireAuth allowedRoles={['administrador', 'profesor']}><PlansPage /></RequireAuth>} />
+          <Route path="/entrenamientos" element={<RequireAuth><WorkoutsPage /></RequireAuth>} />
+          <Route path="/progreso" element={<RequireAuth><ProgressPage /></RequireAuth>} />
+          <Route path="/admin" element={<RequireAuth allowedRoles={['administrador']}><AdminPage /></RequireAuth>} />
         </Routes>
       </main>
     </div>
